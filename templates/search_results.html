@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}Результаты поиска: {{ query }}{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="container">
+        <h1>Результаты поиска: "{{ query }}"</h1>
+        <p>Найдено результатов: {{ results|length }}</p>
+    </div>
+</section>
+
+<section class="search-results-section">
+    <div class="container">
+        {% if results %}
+        <div class="destinations-grid">
+            {% for destination in results %}
+            <div class="destination-card">
+                <div class="destination-image">
+                    <img src="{{ destination.image_url }}" alt="{{ destination.name }}">
+                </div>
+                <div class="destination-info">
+                    <h3>{{ destination.name }}, {{ destination.country }}</h3>
+                    <div class="destination-rating">
+                        <span class="rating">{{ destination.rating }}</span>
+                        <div class="stars">
+                            {% for i in range(5) %}
+                            {% if i < destination.rating|int %}
+                            <i class="fas fa-star"></i>
+                            {% elif i < destination.rating %}
+                            <i class="fas fa-star-half-alt"></i>
+                            {% else %}
+                            <i class="far fa-star"></i>
+                            {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <p>{{ destination.description|truncate(100) }}</p>
+                    <a href="{{ url_for('destination_detail', id=destination.id) }}"
+                       class="btn btn-outline">Подробнее</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="no-results">
+            <p>По запросу "{{ query }}" ничего не найдено.</p>
+            <a href="{{ url_for('destinations') }}" class="btn btn-primary">Все направления</a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

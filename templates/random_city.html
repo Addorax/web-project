@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}Путешествия - Главная{% endblock %}
+
+{% block content %}
+<section class="hero random-city-hero">
+    <div class="hero-content">
+        <h1>Откройте для себя мир</h1>
+        <p>Не знаете, куда поехать? Выберите случайное направление!</p>
+        <a href="{{ url_for('random_destination') }}" class="btn btn-primary btn-large">Случайный город</a>
+    </div>
+</section>
+
+<section class="features">
+    <div class="container">
+        <h2 class="section-title">Почему мы?</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-globe"></i>
+                </div>
+                <h3>Много направлений</h3>
+                <p>Исследуйте места по всему миру</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-map-marked-alt"></i>
+                </div>
+                <h3>Подробная информация</h3>
+                <p>Информация о каждом месте</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-user-friends"></i>
+                </div>
+                <h3>Сообщество</h3>
+                <p>Общайтесь с путешественниками</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="cta-section">
+    <div class="container">
+        <div class="cta-content">
+            <h2>Хотите увидеть все направления?</h2>
+            <p>Просмотрите нашу коллекцию мест</p>
+            <a href="{{ url_for('destinations') }}" class="btn btn-secondary btn-large">Все направления</a>
+        </div>
+    </div>
+</section>
+
+<section class="how-it-works">
+    <div class="container">
+        <h2 class="section-title">Как это работает</h2>
+        <div class="steps">
+            <div class="step">
+                <div class="step-number">1</div>
+                <h3>Нажмите кнопку</h3>
+                <p>Выберите случайное направление</p>
+            </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <h3>Изучите детали</h3>
+                <p>Узнайте о месте</p>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <h3>Планируйте поездку</h3>
+                <p>Используйте наши рекомендации</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

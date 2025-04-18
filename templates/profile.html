@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block title %}Профиль - {{ user.username }}{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="container">
+        <h1>Профиль пользователя</h1>
+        <p>Ваша информация</p>
+    </div>
+</section>
+
+<section class="profile-section">
+    <div class="container">
+        <div class="profile-container">
+            <div class="profile-sidebar">
+                <div class="profile-avatar">
+                    <i class="fas fa-user-circle fa-6x"></i>
+                </div>
+                <h2>{{ user.username }}</h2>
+                <p class="profile-joined">Дата регистрации: {{ user.joined_date.strftime('%d.%m.%Y') }}</p>
+                <div class="profile-actions">
+                    <a href="{{ url_for('edit_profile') }}" class="btn btn-primary btn-block">Редактировать профиль</a>
+                </div>
+            </div>
+
+            <div class="profile-content">
+                <div class="profile-card">
+                    <h3>Информация</h3>
+                    <div class="profile-info">
+                        <div class="info-item">
+                            <span class="info-label">Email:</span>
+                            <span class="info-value">{{ user.email }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Город:</span>
+                            <span class="info-value">{{ user.location if user.location else 'Не указано' }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="profile-card">
+                    <h3>О себе</h3>
+                    <div class="profile-bio">
+                        {% if user.bio %}
+                        <p>{{ user.bio }}</p>
+                        {% else %}
+                        <p class="text-muted">Информация не указана. <a
+                                href="{{ url_for('edit_profile') }}">Добавить</a></p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="profile-card">
+                    <h3>Избранные направления</h3>
+                    <div class="favorites-empty">
+                        <i class="fas fa-heart"></i>
+                        <p>У вас пока нет избранных направлений</p>
+                        <a href="{{ url_for('destinations') }}" class="btn btn-outline">Просмотреть направления</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
