@@ -1,50 +1,57 @@
 {% extends 'base.html' %}
 
-{% block title %}Обзор направлений{% endblock %}
+{% block title %}Главная{% endblock %}
 
 {% block content %}
-<section class="hero">
-    <div class="hero-content">
-        <h1>Исследуйте мир</h1>
-        <p>Найдите идеальное место для путешествия</p>
+<section class="hero-section">
+    <div class="container">
+        <div class="hero-content">
+            <h1>Исследуйте мир</h1>
+            <p>Откройте для себя новые места и приключения</p>
+            <a href="{{ url_for('destinations') }}" class="btn btn-primary">Просмотреть направления</a>
+        </div>
     </div>
 </section>
 
-<section class="featured-destinations">
+<section class="featured-section">
     <div class="container">
-        <h2 class="section-title">Популярные направления</h2>
-        <div class="destinations-grid">
-            {% for destination in destinations %}
-            <div class="destination-card">
-                <div class="destination-image">
-                    <img src="{{ destination.image_url }}" alt="{{ destination.name }}">
-                </div>
-                <div class="destination-info">
-                    <h3>{{ destination.name }}, {{ destination.country }}</h3>
-                    <div class="destination-rating">
-                        <span class="rating">{{ destination.rating }}</span>
-                        <div class="stars">
-                            {% for i in range(5) %}
-                            {% if i < destination.rating|int %}
-                            <i class="fas fa-star"></i>
-                            {% elif i < destination.rating %}
-                            <i class="fas fa-star-half-alt"></i>
-                            {% else %}
-                            <i class="far fa-star"></i>
-                            {% endif %}
-                            {% endfor %}
+        <h2>Популярные направления</h2>
+
+        {% if destinations %}
+            <div class="featured-grid">
+                {% for destination in destinations %}
+                    <div class="featured-card">
+                        <div class="featured-image">
+                            <img src="{{ destination.image_url }}" alt="{{ destination.name }}">
+                        </div>
+                        <div class="featured-info">
+                            <h3>{{ destination.name }}</h3>
+                            <p>{{ destination.country }}</p>
+                            <div class="featured-rating">
+                                <span class="rating">{{ destination.rating }}</span>
+                                <span class="stars">
+                                    {% for i in range(5) %}
+                                        {% if i < destination.rating|int %}
+                                            ★
+                                        {% else %}
+                                            ☆
+                                        {% endif %}
+                                    {% endfor %}
+                                </span>
+                            </div>
+                            <a href="{{ url_for('destination_detail', id=destination.id) }}" class="btn btn-outline">Подробнее</a>
                         </div>
                     </div>
-                    <p>{{ destination.description|truncate(100) }}</p>
-                    <a href="{{ url_for('destination_detail', id=destination.id) }}"
-                       class="btn btn-outline">Подробнее</a>
-                </div>
+                {% endfor %}
             </div>
-            {% endfor %}
-        </div>
-        <div class="view-all">
-            <a href="{{ url_for('destinations') }}" class="btn btn-primary">Все направления</a>
-        </div>
+        {% else %}
+            <div class="empty-state">
+                <p>Направления пока не добавлены.</p>
+                {% if session.get('user_id') %}
+                    <a href="{{ url_for('create_destination') }}" class="btn btn-primary">Добавить первое направление</a>
+                {% endif %}
+            </div>
+        {% endif %}
     </div>
 </section>
 {% endblock %}

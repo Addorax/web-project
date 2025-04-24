@@ -1,41 +1,44 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ destination.name }}, {{ destination.country }}{% endblock %}
+{% block title %}{{ destination.name }}{% endblock %}
 
 {% block content %}
 <section class="destination-header">
     <div class="container">
-        <h1>{{ destination.name }}, {{ destination.country }}</h1>
-        <div class="destination-rating">
-            <span class="rating">{{ destination.rating }}</span>
-            <div class="stars">
-                {% for i in range(5) %}
-                {% if i < destination.rating|int %}
-                <i class="fas fa-star"></i>
-                {% elif i < destination.rating %}
-                <i class="fas fa-star-half-alt"></i>
-                {% else %}
-                <i class="far fa-star"></i>
-                {% endif %}
-                {% endfor %}
-            </div>
-        </div>
+        <h1>{{ destination.name }}</h1>
+        <p>{{ destination.country }}</p>
     </div>
 </section>
 
 <section class="destination-detail">
     <div class="container">
-        <div class="destination-content">
-            <div class="destination-image">
-                <img src="{{ destination.image_url }}" alt="{{ destination.name }}">
+        <div class="destination-image-large">
+            <img src="{{ destination.image_url }}" alt="{{ destination.name }}">
+        </div>
+
+        <div class="destination-info-detailed">
+            <div class="destination-rating">
+                <span class="rating">{{ destination.rating }}</span>
+                <span class="stars">
+                    {% for i in range(5) %}
+                        {% if i < destination.rating|int %}
+                            ★
+                        {% else %}
+                            ☆
+                        {% endif %}
+                    {% endfor %}
+                </span>
             </div>
+
             <div class="destination-description">
                 <h2>Описание</h2>
                 <p>{{ destination.description }}</p>
             </div>
-        </div>
-        <div class="destination-actions">
-            <a href="{{ url_for('destinations') }}" class="btn btn-outline">Назад к списку</a>
+
+            <div class="destination-actions">
+                <a href="{{ url_for('destinations') }}" class="btn btn-outline">Назад к направлениям</a>
+                <a href="{{ url_for('random_destination') }}" class="btn btn-primary">Случайное направление</a>
+            </div>
         </div>
     </div>
 </section>

@@ -13,25 +13,48 @@
 <section class="edit-profile-section">
     <div class="container">
         <div class="edit-profile-container">
-            <form method="post" action="{{ url_for('edit_profile') }}" class="edit-profile-form">
+            <form method="post" action="{{ url_for('edit_profile') }}">
+                {{ form.hidden_tag() }}
+
                 <div class="form-group">
-                    <label for="email">Email</label>
-                    <input type="email" id="email" name="email" value="{{ user.email }}" required>
+                    {{ form.email.label }}
+                    {{ form.email(class="form-control") }}
+                    {% if form.email.errors %}
+                        <div class="error-message">
+                            {% for error in form.email.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
                 </div>
 
                 <div class="form-group">
-                    <label for="location">Город</label>
-                    <input type="text" id="location" name="location" value="{{ user.location }}">
+                    {{ form.location.label }}
+                    {{ form.location(class="form-control") }}
+                    {% if form.location.errors %}
+                        <div class="error-message">
+                            {% for error in form.location.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
                 </div>
 
                 <div class="form-group">
-                    <label for="bio">О себе</label>
-                    <textarea id="bio" name="bio" rows="5">{{ user.bio }}</textarea>
+                    {{ form.bio.label }}
+                    {{ form.bio(class="form-control", rows=5) }}
+                    {% if form.bio.errors %}
+                        <div class="error-message">
+                            {% for error in form.bio.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
                 </div>
 
                 <div class="form-actions">
-                    <button type="submit" class="btn btn-primary">Сохранить</button>
                     <a href="{{ url_for('profile') }}" class="btn btn-outline">Отмена</a>
+                    {{ form.submit(class="btn btn-primary") }}
                 </div>
             </form>
         </div>

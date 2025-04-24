@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block title %}Создание направления{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="container">
+        <h1>Создание нового направления</h1>
+        <p>Добавьте новое место для путешествий</p>
+    </div>
+</section>
+
+<section class="create-destination-section">
+    <div class="container">
+        <div class="create-destination-container">
+            <form method="post" action="{{ url_for('create_destination') }}">
+                {{ form.hidden_tag() }}
+
+                <div class="form-group">
+                    {{ form.name.label }}
+                    {{ form.name(class="form-control") }}
+                    {% if form.name.errors %}
+                        <div class="error-message">
+                            {% for error in form.name.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    {{ form.country.label }}
+                    {{ form.country(class="form-control") }}
+                    {% if form.country.errors %}
+                        <div class="error-message">
+                            {% for error in form.country.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    {{ form.description.label }}
+                    {{ form.description(class="form-control", rows=5) }}
+                    {% if form.description.errors %}
+                        <div class="error-message">
+                            {% for error in form.description.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    {{ form.image_url.label }}
+                    {{ form.image_url(class="form-control") }}
+                    {% if form.image_url.errors %}
+                        <div class="error-message">
+                            {% for error in form.image_url.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    {{ form.rating.label }}
+                    {{ form.rating(class="form-control") }}
+                    {% if form.rating.errors %}
+                        <div class="error-message">
+                            {% for error in form.rating.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    <small class="form-text">Оценка от 0 до 5</small>
+                </div>
+
+                <div class="form-actions">
+                    <a href="{{ url_for('destinations') }}" class="btn btn-outline">Отмена</a>
+                    {{ form.submit(class="btn btn-primary") }}
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}

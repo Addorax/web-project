@@ -4,6 +4,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import os
 from datetime import datetime
 import random
+from forms import LoginForm, RegistrationForm, DestinationForm, EditProfileForm
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'travel_explorer_secret_key'
@@ -45,51 +46,6 @@ class Destination(db.Model):
 
     def __repr__(self):
         return f'<Destination {self.name}, {self.country}>'
-
-
-with app.app_context():
-    db.create_all()
-
-    if not Destination.query.first():
-        sample_destinations = [
-            Destination(
-                name='Париж',
-                country='Франция',
-                description='Город известный за счет эйфелевой башни, Лувра, и др. исторических достопримечательностей.',
-                image_url='/static/images/paris.jpg',
-                rating=4.7
-            ),
-            Destination(
-                name='Токио',
-                country='Япония',
-                description='Метрополия включающая в себя разные стили архитектуры и японской культуры',
-                image_url='/static/images/tokyo.jpg',
-                rating=4.8
-            ),
-            Destination(
-                name='Нью йорк',
-                country='США',
-                description='Первоклассные рестораны, знаменитые магазины и известный на весь мир парк',
-                image_url='/static/images/nyc.jpg',
-                rating=4.6
-            ),
-            Destination(
-                name='Рим',
-                country='Италия',
-                description='Исторический город достопримечательностей, Колизей, Ватикан, и итальянская кухня.',
-                image_url='/static/images/rome.jpg',
-                rating=4.5
-            ),
-            Destination(
-                name='Бали',
-                country='Индонезия',
-                description='Тропический остров известный прекрасными пляжами и культурой страны.',
-                image_url='/static/images/bali.jpg',
-                rating=4.9
-            )
-        ]
-        db.session.add_all(sample_destinations)
-        db.session.commit()
 
 
 @app.route('/')
@@ -142,9 +98,14 @@ def search():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
+    if 'user_id' in session:
+        return redirect(url_for('home'))
+
+    form = LoginForm()
+
+    if form.validate_on_submit():
+        username = form.username.data
+        password = form.password.data
 
         user = User.query.filter_by(username=username).first()
 
@@ -155,31 +116,40 @@ def login():
         else:
             flash('Неверное имя пользователя или пароль', 'danger')
 
-    return render_template('login.html')
+    return render_template('login.html', form=form)
 
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
-    if request.method == 'POST':
-        username = request.form.get('username')
-        email = request.form.get('email')
-        password = request.form.get('password')
+    if 'user_id' in session:
+        return redirect(url_for('home'))
+
+    form = RegistrationForm()
+
+    if form.validate_on_submit():
+        username = form.username.data
+        email = form.email.data
+        password = form.password.data
 
         existing_user = User.query.filter(
             (User.username == username) | (User.email == email)
         ).first()
 
         if existing_user:
-            flash('Имя пользователя или email уже существуют', 'danger')
+            if existing_user.username == username:
+                flash('Это имя пользователя уже занято', 'danger')
+            else:
+                flash('Этот email уже используется', 'danger')
         else:
             new_user = User(username=username, email=email)
             new_user.set_password(password)
             db.session.add(new_user)
             db.session.commit()
+
             flash('Регистрация успешна! Пожалуйста, войдите.', 'success')
             return redirect(url_for('login'))
 
-    return render_template('register.html')
+    return render_template('register.html', form=form)
 
 
 @app.route('/logout')
@@ -206,25 +176,49 @@ def edit_profile():
         return redirect(url_for('login'))
 
     user = User.query.get_or_404(session['user_id'])
+    form = EditProfileForm(obj=user)
 
-    if request.method == 'POST':
-        user.bio = request.form.get('bio', '')
-        user.location = request.form.get('location', '')
-
-        new_email = request.form.get('email')
-        if new_email and new_email != user.email:
-            existing_email = User.query.filter_by(email=new_email).first()
+    if form.validate_on_submit():
+        if form.email.data != user.email:
+            existing_email = User.query.filter_by(email=form.email.data).first()
             if existing_email:
                 flash('Этот email уже используется', 'danger')
-                return render_template('edit_profile.html', user=user)
-            user.email = new_email
+                return render_template('edit_profile.html', form=form)
 
+        form.populate_obj(user)
         db.session.commit()
+
         flash('Профиль успешно обновлен', 'success')
         return redirect(url_for('profile'))
 
-    return render_template('edit_profile.html', user=user)
+    return render_template('edit_profile.html', form=form)
+
+
+@app.route('/create-destination', methods=['GET', 'POST'])
+def create_destination():
+    if 'user_id' not in session:
+        flash('Пожалуйста, войдите для создания направления', 'warning')
+        return redirect(url_for('login'))
+
+    form = DestinationForm()
+
+    if form.validate_on_submit():
+        new_destination = Destination(
+            name=form.name.data,
+            country=form.country.data,
+            description=form.description.data,
+            image_url=form.image_url.data,
+            rating=form.rating.data or 0.0
+        )
+
+        db.session.add(new_destination)
+        db.session.commit()
+
+        flash('Направление успешно создано!', 'success')
+        return redirect(url_for('destination_detail', id=new_destination.id))
+
+    return render_template('create_destination.html', form=form)
 
 
 if __name__ == '__main__':
-    app.run(port=8080, host='127.0.0.1')
+    app.run(debug=True, port=8080)

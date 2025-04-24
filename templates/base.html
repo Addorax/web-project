@@ -3,84 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Tradd{% endblock %}</title>
+    <title>{% block title %}Путешествия{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
-<header>
-    <nav class="navbar">
-        <div class="logo">
-            <a href="{{ url_for('home') }}">
-                <i class="fas fa-globe-americas"></i> Tradd explorer
-            </a>
-        </div>
-        <div class="nav-links">
-            <a href="{{ url_for('home') }}">Главная</a>
-            <a href="{{ url_for('explore') }}">Обзор</a>
-            <a href="{{ url_for('destinations') }}">Направления</a>
-            <form action="{{ url_for('search') }}" method="get" class="search-form">
-                <input type="text" name="query" placeholder="Поиск...">
-                <button type="submit"><i class="fas fa-search"></i></button>
-            </form>
-        </div>
-        <div class="auth-links">
-            {% if session.get('user_id') %}
-            <a href="{{ url_for('profile') }}" class="btn btn-outline">
-                <i class="fas fa-user"></i> Профиль
-            </a>
-            <a href="{{ url_for('logout') }}" class="btn btn-outline">Выход</a>
-            {% else %}
-            <a href="{{ url_for('login') }}" class="btn btn-outline">Вход</a>
-            <a href="{{ url_for('register') }}" class="btn btn-primary">Регистрация</a>
+    <header>
+        <nav class="navbar">
+            <div class="container">
+                <div class="logo">
+                    <a href="{{ url_for('home') }}">Путешествия</a>
+                </div>
+                <ul class="nav-links">
+                    <li><a href="{{ url_for('home') }}">Главная</a></li>
+                    <li><a href="{{ url_for('explore') }}">Обзор</a></li>
+                    <li><a href="{{ url_for('destinations') }}">Направления</a></li>
+                    {% if session.get('user_id') %}
+                        <li><a href="{{ url_for('create_destination') }}">Создать направление</a></li>
+                    {% endif %}
+                </ul>
+                <div class="auth-links">
+                    <form action="{{ url_for('search') }}" method="get" class="search-form">
+                        <input type="search" name="query" placeholder="Поиск...">
+                        <button type="submit">Поиск</button>
+                    </form>
+                    {% if session.get('user_id') %}
+                        <a href="{{ url_for('profile') }}" class="btn btn-outline">Профиль</a>
+                        <a href="{{ url_for('logout') }}" class="btn">Выход</a>
+                    {% else %}
+                        <a href="{{ url_for('login') }}" class="btn btn-outline">Вход</a>
+                        <a href="{{ url_for('register') }}" class="btn btn-primary">Регистрация</a>
+                    {% endif %}
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages container">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            {{ message }}
+                            <button type="button" class="close-btn" onclick="this.parentElement.style.display='none';">&times;</button>
+                        </div>
+                    {% endfor %}
+                </div>
             {% endif %}
-        </div>
-    </nav>
-</header>
+        {% endwith %}
 
-<main>
-    {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-    <div class="flash-messages">
-        {% for category, message in messages %}
-        <div class="alert alert-{{ category }}">
-            {{ message }}
-            <button class="close-btn">&times;</button>
-        </div>
-        {% endfor %}
-    </div>
-    {% endif %}
-    {% endwith %}
+        {% block content %}{% endblock %}
+    </main>
 
-    {% block content %}{% endblock %}
-</main>
-
-<footer>
-    <div class="footer-content">
-        <div class="footer-section">
-            <h3>Tradd explorer</h3>
-            <p>Откройте для себя мир.</p>
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Tradd</h3>
+                    <p>Откройте для себя мир.</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Контакты</h3>
+                    <p>Email: addoraks@gmail.com</p>
+                    <p>Телефон: +7 (123) 456-78-99</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Tradd</p>
+            </div>
         </div>
-        <div class="footer-section">
-            <ul>
-                <li><a href="{{ url_for('home') }}">Главная</a></li>
-                <li><a href="{{ url_for('destinations') }}">Направления</a></li>
-            </ul>
-        </div>
-        <div class="footer-section">
-        </div>
-    </div>
-    <div class="footer-bottom">
-        <p>&copy; 2025 Tradd. Все права защищены.</p>
-    </div>
-</footer>
-
-<script>
-    document.querySelectorAll('.close-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            this.parentElement.style.display = 'none';
-        });
-    });
-</script>
+    </footer>
 </body>
 </html>
