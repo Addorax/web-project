@@ -1,9 +1,11 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask import Flask, render_template, request, redirect, url_for, flash, session, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
 import os
 from datetime import datetime
 import random
+import uuid
 from forms import LoginForm, RegistrationForm, DestinationForm, EditProfileForm
 
 app = Flask(__name__)
@@ -12,6 +14,12 @@ app.config['SECRET_KEY'] = 'travel_explorer_secret_key'
 basedir = os.path.abspath(os.path.dirname(__file__))
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'travel.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+app.config['UPLOAD_FOLDER'] = os.path.join(basedir, 'static/uploads')
+app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif'}
+app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024
+
+os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 db = SQLAlchemy(app)
 
@@ -23,6 +31,7 @@ class User(db.Model):
     password_hash = db.Column(db.String(128))
     bio = db.Column(db.Text, default="")
     location = db.Column(db.String(100), default="")
+    avatar = db.Column(db.String(200), default="default.jpg")
     joined_date = db.Column(db.DateTime, default=datetime.utcnow)
 
     def set_password(self, password):
@@ -46,6 +55,17 @@ class Destination(db.Model):
 
     def __repr__(self):
         return f'<Destination {self.name}, {self.country}>'
+
+
+def allowed_file(filename):
+    return '.' in filename and \
+        filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
+
+
+def generate_unique_filename(filename):
+    ext = filename.rsplit('.', 1)[1].lower()
+    new_filename = f"{uuid.uuid4().hex}.{ext}"
+    return new_filename
 
 
 @app.route('/')
@@ -169,6 +189,11 @@ def profile():
     return render_template('profile.html', user=user)
 
 
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
+
 @app.route('/edit-profile', methods=['GET', 'POST'])
 def edit_profile():
     if 'user_id' not in session:
@@ -183,15 +208,26 @@ def edit_profile():
             existing_email = User.query.filter_by(email=form.email.data).first()
             if existing_email:
                 flash('Этот email уже используется', 'danger')
-                return render_template('edit_profile.html', form=form)
+                return render_template('edit_profile.html', form=form, user=user)
 
         form.populate_obj(user)
+
+        if 'avatar' in request.files:
+            avatar_file = request.files['avatar']
+            if avatar_file and avatar_file.filename:
+                if allowed_file(avatar_file.filename):
+                    filename = generate_unique_filename(avatar_file.filename)
+                    avatar_file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                    user.avatar = filename
+                else:
+                    flash('Недопустимый формат файла. Разрешены только изображения (png, jpg, jpeg, gif)', 'danger')
+
         db.session.commit()
 
         flash('Профиль успешно обновлен', 'success')
         return redirect(url_for('profile'))
 
-    return render_template('edit_profile.html', form=form)
+    return render_template('edit_profile.html', form=form, user=user)
 
 
 @app.route('/create-destination', methods=['GET', 'POST'])

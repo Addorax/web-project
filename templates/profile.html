@@ -14,7 +14,11 @@
         <div class="profile-container">
             <div class="profile-header">
                 <div class="profile-avatar">
-                    <span>{{ user.username[0] | upper }}</span>
+                    {% if user.avatar and user.avatar != 'default.jpg' %}
+                        <img src="{{ url_for('uploaded_file', filename=user.avatar) }}" alt="{{ user.username }}" class="avatar-img">
+                    {% else %}
+                        <span>{{ user.username[0] | upper }}</span>
+                    {% endif %}
                 </div>
                 <div class="profile-info">
                     <h2>{{ user.username }}</h2>
